@@ -135,11 +135,19 @@ O projeto é composto por dois serviços independentes: um backend FastAPI e um 
 
 Alternativamente, use o `Procfile` (`web: uvicorn backend.main:app --host 0.0.0.0 --port $PORT`) ou `python run.py` localmente.
 
+### Backend alternativo (Vercel Python)
+
+Se preferir publicar a API na Vercel (sem Render):
+
+1. Faça deploy da raiz do repositório (`vercel --prod`).
+2. O `vercel.json` instala dependências, gera dados sintéticos (seed 42) e sobe o entrypoint `api/index.py`.
+3. Defina `BACKEND_CORS_ORIGINS` com a URL do frontend.
+
 ### Frontend (Vercel)
 
-1. Importe o repositório na [Vercel](https://vercel.com).
+1. Importe o repositório na [Vercel](https://vercel.com) **ou** faça deploy a partir de `frontend/`.
 2. Defina **Root Directory** como `frontend`.
-3. Em **Environment Variables**, defina `NEXT_PUBLIC_API_URL` com a URL do backend Render (ex.: `https://sentinela-backend.onrender.com`).
+3. Em **Environment Variables**, defina `NEXT_PUBLIC_API_URL` com a URL do backend (Render ou Vercel).
 4. O `next build` usa essa variável em tempo de build; ao trocar de backend, refaça o deploy.
 
 ### Testes
