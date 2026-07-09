@@ -1,4 +1,4 @@
-# Keep deploy payload lean, but include synthetic/gold data for the API.
+# Keep deploy payload lean, but include gold + minimal synthetic lookups.
 node_modules
 frontend/node_modules
 frontend/.next
@@ -12,3 +12,13 @@ sentinelasus.egg-info
 screenshots
 .env
 .env.local
+scripts
+docs
+tests
+data/bronze
+data/silver
+data/raw
+data/samples
+data/synthetic/weekly_observations.csv
+data/synthetic/anomaly_ground_truth.csv
+data/synthetic/data_quality_flags.csv

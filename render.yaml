@@ -4,6 +4,8 @@ services:
     runtime: python
     plan: free
     pythonVersion: "3.12"
+    repo: https://github.com/BarujaFe1/SentinelaSUS
+    branch: main
     buildCommand: >-
       pip install -r requirements.txt &&
       python scripts/generate_synthetic_epidata.py --seed 42 &&
@@ -14,6 +16,4 @@ services:
       - key: PYTHON_VERSION
         value: "3.12"
       - key: BACKEND_CORS_ORIGINS
-        sync: false
-      - key: PORT
-        sync: false
+        value: https://sentinelasus.vercel.app,http://localhost:3000

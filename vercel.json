@@ -8,8 +8,9 @@
         "includeFiles": [
           "backend/**",
           "data/gold/**",
-          "data/synthetic/**",
-          "scripts/**"
+          "data/synthetic/conditions.csv",
+          "data/synthetic/municipalities.csv",
+          "data/synthetic/metadata.json"
         ]
       }
     }

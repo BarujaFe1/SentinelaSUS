@@ -122,33 +122,32 @@ MIT
 
 O projeto é composto por dois serviços independentes: um backend FastAPI e um frontend Next.js.
 
-### Backend (Render)
+### Backend em produção (Vercel Python — ativo)
 
-1. Crie um novo **Web Service** no [Render](https://render.com) apontando para este repositório.
-2. Use as configurações abaixo (também descritas em `render.yaml`):
-   - **Runtime**: Python 3.12
-   - **Build Command**: `pip install -r requirements.txt && python scripts/generate_synthetic_epidata.py --seed 42 && python scripts/run_pipeline.py`
-   - **Start Command**: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-   - **Health Check Path**: `/health`
-3. Em **Environment**, defina `BACKEND_CORS_ORIGINS` com a URL do frontend (ex.: `https://sentinela.vercel.app,http://localhost:3000`).
-4. O build regenera os dados sintéticos deterministicamente (seed 42), então nada de binário é versionado.
+API publicada em [https://sentinelasus-api.vercel.app](https://sentinelasus-api.vercel.app).
 
-Alternativamente, use o `Procfile` (`web: uvicorn backend.main:app --host 0.0.0.0 --port $PORT`) ou `python run.py` localmente.
+- Entrypoint: `api/index.py`
+- Bundle inclui `data/gold/**` + lookups sintéticos mínimos
+- Runtime depende só de FastAPI/Pandas/NumPy/PyArrow (sem SciPy/Statsmodels)
+- `BACKEND_CORS_ORIGINS` deve incluir a URL do frontend
 
-### Backend alternativo (Vercel Python)
+### Backend opcional (Render Blueprint)
 
-Se preferir publicar a API na Vercel (sem Render):
+Sem `RENDER_API_KEY` no ambiente, o deploy Render precisa de um clique no Dashboard:
 
-1. Faça deploy da raiz do repositório (`vercel --prod`).
-2. O `vercel.json` instala dependências, gera dados sintéticos (seed 42) e sobe o entrypoint `api/index.py`.
-3. Defina `BACKEND_CORS_ORIGINS` com a URL do frontend.
+1. Abra o Blueprint: [criar no Render](https://dashboard.render.com/blueprint/new?repo=https://github.com/BarujaFe1/SentinelaSUS)
+2. Confirme o `render.yaml` (Python 3.12, build gera seed 42, health `/health`)
+3. `BACKEND_CORS_ORIGINS` já vem com `https://sentinelasus.vercel.app,http://localhost:3000`
 
-### Frontend (Vercel)
+Alternativamente: `Procfile` / `python run.py` localmente.
 
-1. Importe o repositório na [Vercel](https://vercel.com) **ou** faça deploy a partir de `frontend/`.
-2. Defina **Root Directory** como `frontend`.
-3. Em **Environment Variables**, defina `NEXT_PUBLIC_API_URL` com a URL do backend (Render ou Vercel).
-4. O `next build` usa essa variável em tempo de build; ao trocar de backend, refaça o deploy.
+### Frontend (Vercel — ativo)
+
+Frontend publicado em [https://sentinelasus.vercel.app](https://sentinelasus.vercel.app).
+
+1. Root Directory: `frontend`
+2. Env: `NEXT_PUBLIC_API_URL=https://sentinelasus-api.vercel.app`
+3. Ao trocar de backend, refaça o deploy (a variável é bake-time)
 
 ### Testes
 
