@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+venv/
+*.so
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Data
+data/raw/*
+data/bronze/*
+data/silver/*
+data/gold/*
+data/synthetic/*
+!data/raw/.gitkeep
+!data/bronze/.gitkeep
+!data/silver/.gitkeep
+!data/gold/.gitkeep
+!data/synthetic/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
