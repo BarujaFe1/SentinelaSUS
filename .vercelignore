@@ -1,0 +1,14 @@
+# Keep deploy payload lean, but include synthetic/gold data for the API.
+node_modules
+frontend/node_modules
+frontend/.next
+.next
+.git
+.ruff_cache
+.pytest_cache
+**/__pycache__
+*.pyc
+sentinelasus.egg-info
+screenshots
+.env
+.env.local
