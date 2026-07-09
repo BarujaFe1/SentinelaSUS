@@ -35,7 +35,7 @@ SentinelaSUS transforma séries temporais agregadas em sinais estatísticos inte
 ## Stack
 
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS 4, Recharts
-- **Backend**: Python 3.12, FastAPI, Pydantic, Pandas, NumPy, SciPy
+- **Backend**: Python 3.12, FastAPI, Pydantic, Pandas, NumPy, PyArrow
 - **Dados**: CSV sintético → Parquet processado
 - **Testes**: pytest, ruff, seed reproduzível
 
@@ -65,5 +65,7 @@ SentinelaSUS transforma séries temporais agregadas em sinais estatísticos inte
 
 ## Links
 
-- Repositório: [https://github.com/FelipeAlirio/sentinelasus](https://github.com/FelipeAlirio/sentinelasus)
+- Repositório: [https://github.com/BarujaFe1/SentinelaSUS](https://github.com/BarujaFe1/SentinelaSUS)
+- Live: [https://sentinelasus.vercel.app](https://sentinelasus.vercel.app)
+- API: [https://sentinelasus-api.vercel.app](https://sentinelasus-api.vercel.app)
 - README: instruções de execução
