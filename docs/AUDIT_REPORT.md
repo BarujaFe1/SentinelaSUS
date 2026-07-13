@@ -72,4 +72,4 @@ Os maiores riscos de credibilidade para portfólio são: (1) empacotamento frág
 - [x] CI atualizada  
 - [x] `.env.example` / `.gitignore` OK  
 - [x] HANDOFF.md  
-- [ ] Branch publicada (push após commit)  
+- [x] Branch publicada (`origin/chore/portfolio-quality-pass` @ `fa3b2c6`)  
