@@ -20,11 +20,17 @@ Todos os dados são gerados artificialmente com seed reproduzível. Característ
 
 Para cada município, condição e semana epidemiológica:
 
-`baseline_mean = média dos casos reportados na mesma semana em anos anteriores (janela ±2 semanas)`
+`baseline_mean = média dos reported_cases na mesma semana epidemiológica ao longo dos anos disponíveis`
 
-`baseline_std = desvio padrão correspondente`
+`baseline_std = desvio padrão amostral correspondente`
 
-Exigência mínima: 3 observações na janela. Abaixo disso, o sinal é classificado como "não interpretável".
+`baseline_median` / `baseline_mad` alimentam o score robusto (MAD).
+
+Exigência mínima: **3 observações** na agregação. Abaixo disso, o sinal é classificado como "não interpretável".
+
+### Limitação explícita (MVP)
+
+A implementação atual agrega **todos os anos** daquela semana epidemiológica (incluindo o ano sob avaliação). Isso introduz dependência leve entre observação e baseline. Para o dataset sintético de demonstração isso é aceitável e está documentado; leave-one-out / janela ±2 semanas permanece no roadmap.
 
 ## Rolling z-score
 
@@ -42,7 +48,7 @@ Alternativa usando mediana e MAD (Median Absolute Deviation):
 
 `robust_score = (observed_cases - baseline_median) / (MAD * 1.4826)`
 
-Usado como comparação metodológica.
+Usado como comparação metodológica na UI `/comparison`.
 
 ## Alert levels
 
@@ -65,6 +71,6 @@ Score composto de 0 a 100:
 
 - Dados sintéticos — não representam notificações reais
 - Z-score assume distribuição aproximadamente normal
-- Baseline limitado a 2-3 anos
+- Baseline limitado a 2–3 anos e com a limitação de inclusão do ano avaliado (MVP)
 - Não considera fatores de confusão (vacinação, clima, mobilidade)
 - Não substitui análise epidemiológica oficial

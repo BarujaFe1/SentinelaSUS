@@ -68,10 +68,13 @@ export default function AlertsPage() {
           <option value="atencao">Atenção</option>
           <option value="observacao">Observação</option>
           <option value="nao_interpretavel">Não Interpretável</option>
-          <option value="normal">Normal</option>
         </select>
       </div>
       <SyntheticBanner />
+
+      {!loading && !error && filtered.length === 0 && (
+        <div className="text-slate-400">Nenhum alerta encontrado para o filtro atual.</div>
+      )}
 
       <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">

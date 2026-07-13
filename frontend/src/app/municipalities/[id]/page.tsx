@@ -12,6 +12,7 @@ export default function MunicipalityDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [summary, setSummary] = useState<MunicipalitySummary | null>(null)
   const [observations, setObservations] = useState<Observation[]>([])
+  const [conditionNames, setConditionNames] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,11 +22,15 @@ export default function MunicipalityDetailPage() {
     Promise.all([
       api.getMunicipalitySummary(id),
       api.getTimeSeries({ municipality_id: id }),
+      api.getConditions(),
     ])
-      .then(([sum, obs]) => {
+      .then(([sum, obs, conds]) => {
         if (cancelled) return
         setSummary(sum)
         setObservations(obs)
+        setConditionNames(
+          Object.fromEntries(conds.map((c) => [c.condition_id, c.condition_name])),
+        )
       })
       .catch((err: Error) => {
         if (cancelled) return
@@ -80,7 +85,7 @@ export default function MunicipalityDetailPage() {
           <div className="text-white font-medium capitalize">{summary.municipality.region_type}</div>
         </div>
         <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-          <div className="text-xs text-slate-500 uppercase">Alertas Ativos</div>
+          <div className="text-xs text-slate-500 uppercase">Sinais Históricos</div>
           <div className="text-orange-400 font-bold">{summary.active_alerts}</div>
         </div>
         <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
@@ -117,7 +122,9 @@ export default function MunicipalityDetailPage() {
                     <td className="py-2 px-3 text-slate-300">
                       {o.year}-W{String(o.epidemiological_week).padStart(2, "0")}
                     </td>
-                    <td className="py-2 px-3 text-slate-300">{o.condition_id?.slice(0, 8)}</td>
+                    <td className="py-2 px-3 text-slate-300">
+                      {conditionNames[o.condition_id] || o.condition_id}
+                    </td>
                     <td className="py-2 px-3 text-white">{o.reported_cases}</td>
                     <td className="py-2 px-3 font-mono text-slate-400">{o.z_score.toFixed(2)}</td>
                     <td className="py-2 px-3">

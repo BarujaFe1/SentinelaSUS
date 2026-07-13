@@ -64,6 +64,10 @@ export default function QualityPage() {
       </div>
       <SyntheticBanner />
 
+      {filtered.length === 0 && (
+        <div className="text-slate-400">Nenhum problema de qualidade para o filtro atual.</div>
+      )}
+
       <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">

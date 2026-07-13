@@ -48,7 +48,7 @@ export default function OverviewPage() {
       <h1 className="text-2xl font-bold text-white">Visão Geral da Vigilância</h1>
       <SyntheticBanner />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
           <div className="flex items-center gap-2 text-emerald-400 mb-1">
             <BarChart3 className="w-4 h-4" />
@@ -76,6 +76,13 @@ export default function OverviewPage() {
             <span className="text-xs uppercase tracking-wider">Confiab. Média</span>
           </div>
           <div className="text-3xl font-bold text-white">{data.average_reliability}</div>
+        </div>
+        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+          <div className="flex items-center gap-2 text-emerald-400 mb-1">
+            <AlertTriangle className="w-4 h-4" />
+            <span className="text-xs uppercase tracking-wider">Issues de Qualidade</span>
+          </div>
+          <div className="text-3xl font-bold text-white">{data.total_quality_issues}</div>
         </div>
       </div>
 

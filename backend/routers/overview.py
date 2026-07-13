@@ -14,7 +14,9 @@ def get_overview(store: DataStore = Depends(get_data_store)):
         level = a.get("alert_level", "normal")
         alert_counts[level] = alert_counts.get(level, 0) + 1
 
-    municipalities_names = set(a.get("municipality_id") for a in store.municipalities)
+    municipalities_names = set(
+        m.get("municipality_id") for m in store.municipalities
+    )
     conditions_names = set(c.get("condition_id") for c in store.conditions)
     years_weeks = set((o.get("year"), o.get("epidemiological_week")) for o in store.observations)
 

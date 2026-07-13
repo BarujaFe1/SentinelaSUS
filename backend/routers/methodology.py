@@ -18,10 +18,16 @@ def get_methodology(store: DataStore = Depends(get_data_store)):
         "methods": {
             "baseline": {
                 "description": (
-                    "Média e desvio padrão das mesmas semanas epidemiológicas "
-                    "em anos anteriores (janela ±2 semanas)"
+                    "Média e desvio dos reported_cases na mesma semana "
+                    "epidemiológica ao longo dos anos disponíveis no dataset "
+                    "(mínimo 3 observações para interpretação)."
                 ),
                 "min_sample_size": 3,
+                "known_limitation": (
+                    "A agregação atual inclui todos os anos da semana "
+                    "(incluindo o ano avaliado). Adequado ao MVP sintético; "
+                    "leave-one-out fica para evolução."
+                ),
             },
             "z_score": {
                 "description": "Rolling z-score: (observado - baseline_média) / baseline_desvio",

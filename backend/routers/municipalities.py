@@ -34,6 +34,7 @@ def get_municipality_summary(municipality_id: str, store: DataStore = Depends(ge
         if a.get("reliability_score") is not None
     ]
 
+    # active_alerts = sinais históricos do município (não apenas semana atual).
     return MunicipalitySummary(
         municipality=Municipality(**mun),
         total_conditions=len(conditions),

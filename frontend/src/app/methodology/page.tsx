@@ -3,13 +3,18 @@
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import { BookOpen } from "lucide-react"
+import { SyntheticBanner } from "@/components/SyntheticBanner"
 
 interface MethodologyData {
   methods: {
-    baseline: { description: string }
+    baseline: { description: string; known_limitation?: string }
     z_score: { description: string; thresholds: Record<string, string> }
     robust_score: { description: string }
-    reliability_score: { description: string; components: Record<string, number>; interpretation: Record<string, string> }
+    reliability_score: {
+      description: string
+      components: Record<string, number>
+      interpretation: Record<string, string>
+    }
   }
   alert_levels: Record<string, string>
   limitations: string[]
@@ -17,10 +22,32 @@ interface MethodologyData {
 
 export default function MethodologyPage() {
   const [methodology, setMethodology] = useState<MethodologyData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getMethodology().then((data) => setMethodology(data as unknown as MethodologyData)).catch(() => {})
+    let cancelled = false
+    api
+      .getMethodology()
+      .then((data) => {
+        if (!cancelled) setMethodology(data as unknown as MethodologyData)
+      })
+      .catch(() => {
+        if (!cancelled) setError("Não foi possível carregar a metodologia.")
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
+
+  if (loading) return <div className="text-slate-400">Carregando...</div>
+  if (error) return <div className="text-amber-400">{error}</div>
+  if (!methodology?.methods) {
+    return <div className="text-slate-400">Metodologia indisponível.</div>
+  }
 
   const m = methodology
 
@@ -30,66 +57,72 @@ export default function MethodologyPage() {
         <BookOpen className="w-6 h-6 text-emerald-400" />
         Metodologia e Limites
       </h1>
+      <SyntheticBanner />
 
-      {m?.methods && (
-        <div className="space-y-6">
-          <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
-            <h2 className="text-lg font-semibold text-white mb-2">Baseline Histórico</h2>
-            <p className="text-slate-300 text-sm">{m.methods.baseline.description}</p>
-          </section>
+      <div className="space-y-6">
+        <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
+          <h2 className="text-lg font-semibold text-white mb-2">Baseline Histórico</h2>
+          <p className="text-slate-300 text-sm">{m.methods.baseline.description}</p>
+          {m.methods.baseline.known_limitation && (
+            <p className="text-amber-200/80 text-sm mt-3">
+              {m.methods.baseline.known_limitation}
+            </p>
+          )}
+        </section>
 
-          <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
-            <h2 className="text-lg font-semibold text-white mb-2">Z-Score</h2>
-            <p className="text-slate-300 text-sm mb-3">{m.methods.z_score.description}</p>
-            <div className="space-y-1">
-              {Object.entries(m.methods.z_score.thresholds).map(([level, threshold]) => (
-                <div key={level} className="flex items-center gap-2 text-sm">
-                  <span className="text-slate-400 capitalize w-28">{level.replace("_", " ")}</span>
-                  <span className="text-slate-500">→</span>
-                  <span className="text-slate-300 font-mono">{threshold}</span>
-                </div>
-              ))}
-            </div>
-          </section>
+        <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
+          <h2 className="text-lg font-semibold text-white mb-2">Z-Score</h2>
+          <p className="text-slate-300 text-sm mb-3">{m.methods.z_score.description}</p>
+          <div className="space-y-1">
+            {Object.entries(m.methods.z_score.thresholds).map(([level, threshold]) => (
+              <div key={level} className="flex items-center gap-2 text-sm">
+                <span className="text-slate-400 capitalize w-28">{level.replace("_", " ")}</span>
+                <span className="text-slate-500">→</span>
+                <span className="text-slate-300 font-mono">{threshold}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
-            <h2 className="text-lg font-semibold text-white mb-2">Reliability Score</h2>
-            <p className="text-slate-300 text-sm mb-3">{m.methods.reliability_score.description}</p>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              {Object.entries(m.methods.reliability_score.components).map(([component, weight]) => (
-                <div key={component} className="flex justify-between bg-slate-700/50 rounded px-3 py-1.5">
-                  <span className="text-slate-400 capitalize">{component.replace("_", " ")}</span>
-                  <span className="text-white font-mono">{weight}%</span>
-                </div>
-              ))}
-            </div>
-          </section>
+        <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
+          <h2 className="text-lg font-semibold text-white mb-2">Reliability Score</h2>
+          <p className="text-slate-300 text-sm mb-3">{m.methods.reliability_score.description}</p>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            {Object.entries(m.methods.reliability_score.components).map(([component, weight]) => (
+              <div key={component} className="flex justify-between bg-slate-700/50 rounded px-3 py-1.5">
+                <span className="text-slate-400 capitalize">{component.replace("_", " ")}</span>
+                <span className="text-white font-mono">{weight}%</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
-            <h2 className="text-lg font-semibold text-white mb-2">Alert Levels</h2>
-            <div className="space-y-1">
-              {Object.entries(m.alert_levels).map(([level, desc]) => (
-                <div key={level} className="flex items-start gap-2 text-sm">
-                  <span className="text-slate-400 capitalize w-32 shrink-0">{level.replace("_", " ")}</span>
-                  <span className="text-slate-300">{desc}</span>
-                </div>
-              ))}
-            </div>
-          </section>
+        <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
+          <h2 className="text-lg font-semibold text-white mb-2">Alert Levels</h2>
+          <div className="space-y-1">
+            {Object.entries(m.alert_levels).map(([level, desc]) => (
+              <div key={level} className="flex items-start gap-2 text-sm">
+                <span className="text-slate-400 capitalize w-32 shrink-0">
+                  {level.replace("_", " ")}
+                </span>
+                <span className="text-slate-300">{desc}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
-            <h2 className="text-lg font-semibold text-white mb-2">Limitações</h2>
-            <ul className="space-y-1">
-              {m.limitations.map((lim, i) => (
-                <li key={i} className="flex gap-2 text-sm text-slate-400">
-                  <span className="text-amber-400">•</span>
-                  <span>{lim}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
-      )}
+        <section className="bg-slate-800 rounded-lg p-5 border border-slate-700">
+          <h2 className="text-lg font-semibold text-white mb-2">Limitações</h2>
+          <ul className="space-y-2">
+            {m.limitations.map((lim) => (
+              <li key={lim} className="text-sm text-slate-400 flex gap-2">
+                <span className="text-amber-400">•</span>
+                <span>{lim}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
     </div>
   )
 }

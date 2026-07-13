@@ -417,9 +417,50 @@ Detalhes em [docs/methodology.md](docs/methodology.md) e [docs/responsible-analy
 * **Fase 0 — Dataset sintético:** gerador seed 42, 80 municípios, 3 condições, 156 semanas.
 * **Fase 1 — Pipeline gold:** baselines, detector, reliability, quality issues.
 * **Fase 2 — API tipada:** overview, timeseries, alerts, quality, brief, methodology.
-* **Fase 3 — Dashboard:** overview, explorer, alerts, quality, brief, comparison.
+* **Fase 3 — Dashboard:** overview, explorer, alerts, quality, brief, comparison interativa.
 * **Fase 4 — Deploy:** Vercel frontend + API; Blueprint Render opcional; CI GitHub Actions.
-* **Próximas evoluções:** comparação interativa z-score vs MAD, export PDF do brief, mapas municipais.
+* **Próximas evoluções:** baseline leave-one-out, export PDF do brief, mapas municipais, Playwright smoke.
+
+---
+
+## ✅ Status atual
+
+- **Live:** frontend e API em produção (Vercel)
+- **CI:** ruff + pytest + eslint + tsc + build
+- **Dados:** sintéticos, seed 42, regenerados no build da API
+- **Branch de qualidade:** `chore/portfolio-quality-pass`
+
+---
+
+## ⚖️ Trade-offs
+
+| Escolha | Benefício | Custo |
+|---|---|---|
+| DataStore em memória | Simplicidade e latência baixa na demo | Cold start carrega ~37k linhas |
+| Baseline semanal agregada | Fácil de explicar | Inclui ano avaliado (limitação MVP documentada) |
+| API pública GET-only | Demo aberta | Sem auth/rate-limit avançado |
+| `NEXT_PUBLIC_API_URL` bake-time | Padrão Next | Troca de backend exige rebuild |
+
+---
+
+## 💼 O que este projeto demonstra
+
+- Produto analítico end-to-end (geração → pipeline → API → UI → deploy)
+- Comunicação de **incerteza** e **confiabilidade**, não só “alerta vermelho”
+- Responsible Analytics (termos proibidos, banners, antiescopo)
+- Engenharia full-stack com contratos tipados (Pydantic ↔ TypeScript)
+- Disciplina de CI, docs e honestidade metodológica
+
+---
+
+## 🎤 Como eu apresentaria em entrevista
+
+1. **Problema:** dashboards epidemiológicos sem baseline/incerteza geram leitura alarmista.  
+2. **Solução:** sinais estatísticos com níveis, reliability e qualidade de dados — 100% sintético.  
+3. **Demo (2 min):** overview → explorer → alert detail → comparison z vs MAD → brief.  
+4. **Decisões:** por que z-score + MAD; por que brief determinístico; por que não prever casos.  
+5. **Limites honestos:** baseline MVP, dados sintéticos, leave-one-out no roadmap.  
+6. **Prova de engenharia:** CI regenera seed 42 e testa contratos; deploy real no ar.
 
 ---
 
@@ -435,11 +476,17 @@ O SentinelaSUS demonstra competências críticas para **Analytics Engineering, D
 
 ## 📚 Documentação Complementar
 
+- [docs/AUDIT_REPORT.md](docs/AUDIT_REPORT.md) — auditoria desta quality pass
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arquitetura
+- [docs/TECHNICAL_DECISIONS.md](docs/TECHNICAL_DECISIONS.md) — ADRs curtos
+- [docs/TESTING.md](docs/TESTING.md) — como testar
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — deploy
 - [docs/methodology.md](docs/methodology.md) — métodos, thresholds e limites
 - [docs/assumptions.md](docs/assumptions.md) — premissas do dataset sintético
 - [docs/data-dictionary.md](docs/data-dictionary.md) — dicionário de dados
 - [docs/responsible-analytics.md](docs/responsible-analytics.md) — ética e antiescopo
 - [docs/portfolio-case-study.md](docs/portfolio-case-study.md) — case study de portfólio
+- [docs/HANDOFF.md](docs/HANDOFF.md) — handoff da quality pass
 
 ---
 

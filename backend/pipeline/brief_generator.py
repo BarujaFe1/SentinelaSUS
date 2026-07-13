@@ -96,8 +96,9 @@ def generate_brief(
         + " "
         + disclaimer
     )
-    for term in PROHIBITED_TERMS:
-        assert term not in brief_text.lower(), f"Termo proibido encontrado: {term}"
+    found = [term for term in PROHIBITED_TERMS if term in brief_text.lower()]
+    if found:
+        raise ValueError(f"Termos proibidos encontrados no brief: {found}")
 
     return ReportBrief(
         report_id=str(uuid4()),

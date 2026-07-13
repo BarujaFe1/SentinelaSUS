@@ -46,7 +46,8 @@ def run():
     print(f"  Salvo: {SILVER_DIR / 'observations_validated.parquet'}")
 
     print("[silver -> gold] Calculando baselines históricos...")
-    baselines = build_baselines(df_obs, use_expected=True)
+    # Use reported_cases (not expected) so baselines reflect observed history.
+    baselines = build_baselines(df_obs, use_expected=False)
     baselines.to_parquet(GOLD_DIR / "baselines.parquet", index=False)
     print(f"  Baselines calculados: {len(baselines)}")
 

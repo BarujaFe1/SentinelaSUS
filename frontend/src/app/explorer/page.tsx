@@ -15,15 +15,29 @@ export default function ExplorerPage() {
   const [selectedCond, setSelectedCond] = useState("")
   const [observations, setObservations] = useState<Observation[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [metaError, setMetaError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getMunicipalities().then(setMunicipalities).catch(() => {})
-    api.getConditions().then(setConditions).catch(() => {})
+    let cancelled = false
+    Promise.all([api.getMunicipalities(), api.getConditions()])
+      .then(([muns, conds]) => {
+        if (cancelled) return
+        setMunicipalities(muns)
+        setConditions(conds)
+      })
+      .catch(() => {
+        if (!cancelled) setMetaError("Não foi possível carregar municípios/condições.")
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const loadSeries = (mun: string, cond: string) => {
     setSelectedMun(mun)
     setSelectedCond(cond)
+    setError(null)
     if (!mun || !cond) {
       setObservations([])
       setLoading(false)
@@ -33,7 +47,7 @@ export default function ExplorerPage() {
     api
       .getTimeSeries({ municipality_id: mun, condition_id: cond })
       .then(setObservations)
-      .catch(() => {})
+      .catch(() => setError("Não foi possível carregar a série temporal."))
       .finally(() => setLoading(false))
   }
 
@@ -42,7 +56,6 @@ export default function ExplorerPage() {
     observed: o.reported_cases,
     baseline: o.baseline_mean,
     upper: o.baseline_mean + (o.baseline_std || 0) * 1.5,
-    lower: Math.max(0, o.baseline_mean - (o.baseline_std || 0) * 1.5),
     alert: o.alert_level,
   }))
 
@@ -60,34 +73,53 @@ export default function ExplorerPage() {
       <h1 className="text-2xl font-bold text-white">Explorador de Séries Temporais</h1>
       <SyntheticBanner />
 
-      <div className="flex gap-4">
-        <select
-          className="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white text-sm"
-          value={selectedMun}
-          onChange={(e) => loadSeries(e.target.value, selectedCond)}
-        >
-          <option value="">Selecione município</option>
-          {municipalities.map((m) => (
-            <option key={m.municipality_id} value={m.municipality_id}>
-              {m.municipality_name}
-            </option>
-          ))}
-        </select>
-        <select
-          className="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white text-sm"
-          value={selectedCond}
-          onChange={(e) => loadSeries(selectedMun, e.target.value)}
-        >
-          <option value="">Selecione condição</option>
-          {conditions.map((c) => (
-            <option key={c.condition_id} value={c.condition_id}>
-              {c.condition_name}
-            </option>
-          ))}
-        </select>
+      {metaError && <div className="text-amber-400">{metaError}</div>}
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        <label className="flex flex-col gap-1 text-sm text-slate-400 flex-1">
+          Município
+          <select
+            className="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white text-sm"
+            value={selectedMun}
+            onChange={(e) => loadSeries(e.target.value, selectedCond)}
+          >
+            <option value="">Selecione município</option>
+            {municipalities.map((m) => (
+              <option key={m.municipality_id} value={m.municipality_id}>
+                {m.municipality_name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-slate-400 flex-1">
+          Condição
+          <select
+            className="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white text-sm"
+            value={selectedCond}
+            onChange={(e) => loadSeries(selectedMun, e.target.value)}
+          >
+            <option value="">Selecione condição</option>
+            {conditions.map((c) => (
+              <option key={c.condition_id} value={c.condition_id}>
+                {c.condition_name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {loading && <div className="text-slate-400">Carregando série...</div>}
+      {error && <div className="text-amber-400">{error}</div>}
+
+      {!loading && !error && selectedMun && selectedCond && chartData.length === 0 && (
+        <div className="text-slate-400">Nenhuma observação encontrada para este filtro.</div>
+      )}
+
+      {!selectedMun || !selectedCond ? (
+        <div className="text-slate-500 text-sm">
+          Selecione município e condição para visualizar a série com baseline e bandas.
+        </div>
+      ) : null}
 
       {chartData.length > 0 && (
         <div className="bg-slate-800 rounded-lg p-5 border border-slate-700">
@@ -111,9 +143,10 @@ export default function ExplorerPage() {
 
       {chartData.length > 0 && (
         <div className="bg-slate-800 rounded-lg p-5 border border-slate-700">
-          <h2 className="text-lg font-semibold text-white mb-3">Observações</h2>
+          <h2 className="text-lg font-semibold text-white mb-3">Observações recentes</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
+              <caption className="sr-only">Observações semanais da série selecionada</caption>
               <thead>
                 <tr className="text-slate-400 border-b border-slate-700">
                   <th className="py-2 px-3">Semana</th>
@@ -127,15 +160,19 @@ export default function ExplorerPage() {
               <tbody>
                 {observations.slice(-20).reverse().map((o) => (
                   <tr key={o.observation_id} className="border-b border-slate-700/50">
-                    <td className="py-2 px-3 text-slate-300">{o.year}-W{String(o.epidemiological_week).padStart(2, "0")}</td>
+                    <td className="py-2 px-3 text-slate-300">
+                      {o.year}-W{String(o.epidemiological_week).padStart(2, "0")}
+                    </td>
                     <td className="py-2 px-3 text-white">{o.reported_cases}</td>
                     <td className="py-2 px-3 text-slate-400">{o.expected_cases.toFixed(1)}</td>
                     <td className={`py-2 px-3 font-mono ${o.z_score > 2 ? "text-orange-400" : "text-slate-300"}`}>
                       {o.z_score.toFixed(2)}
                     </td>
                     <td className="py-2 px-3">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium`}
-                        style={{ backgroundColor: alertColor(o.alert_level) + "22", color: alertColor(o.alert_level) }}>
+                      <span
+                        className="px-2 py-0.5 rounded text-xs font-medium"
+                        style={{ backgroundColor: alertColor(o.alert_level) + "22", color: alertColor(o.alert_level) }}
+                      >
                         {o.alert_level.replace("_", " ")}
                       </span>
                     </td>
