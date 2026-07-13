@@ -12,6 +12,7 @@ import {
   Home,
   BookOpen,
   ShieldCheck,
+  FlaskConical,
   Table,
   Menu,
   X,
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/quality", label: "Qualidade", icon: Table },
   { href: "/brief", label: "Relatório", icon: FileText },
   { href: "/comparison", label: "Comparação", icon: GitCompare },
+  { href: "/simulation", label: "Simulação", icon: FlaskConical },
   { href: "/methodology", label: "Metodologia", icon: BookOpen },
   { href: "/responsible-analytics", label: "Ética", icon: ShieldCheck },
 ]

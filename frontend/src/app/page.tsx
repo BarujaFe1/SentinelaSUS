@@ -1,16 +1,37 @@
 "use client"
 
 import Link from "next/link"
-import { Activity, BarChart3, AlertTriangle, FileText, ShieldCheck, BookOpen } from "lucide-react"
+import {
+  Activity,
+  BarChart3,
+  AlertTriangle,
+  FileText,
+  ShieldCheck,
+  BookOpen,
+  FlaskConical,
+  GitCompare,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import type { OverviewKPIs } from "@/lib/types"
 
 export default function Home() {
   const [overview, setOverview] = useState<OverviewKPIs | null>(null)
+  const [overviewError, setOverviewError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getOverview().then(setOverview).catch(() => {})
+    let cancelled = false
+    api
+      .getOverview()
+      .then((data) => {
+        if (!cancelled) setOverview(data)
+      })
+      .catch(() => {
+        if (!cancelled) setOverviewError("API indisponível — KPIs não carregados.")
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return (
@@ -21,8 +42,8 @@ export default function Home() {
           SentinelaSUS
         </h1>
         <p className="text-xl text-slate-400">
-          Painel responsável de vigilância epidemiológica sintética para detectar sinais estatísticos
-          incomuns em séries temporais municipais.
+          Laboratório analítico de vigilância epidemiológica sintética: sinais interpretáveis,
+          comparação z vs MAD e comunicação responsável de incerteza.
         </p>
       </div>
 
@@ -31,16 +52,18 @@ export default function Home() {
         oficiais de vigilância epidemiológica. Não faz diagnóstico, recomendação clínica ou previsão de casos.
       </div>
 
+      {overviewError && <div className="text-amber-400 text-sm">{overviewError}</div>}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {overview && (
           <>
             <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
               <div className="text-2xl font-bold text-white">{overview.total_municipalities}</div>
-              <div className="text-sm text-slate-400">Municípios monitorados</div>
+              <div className="text-sm text-slate-400">Municípios sintéticos</div>
             </div>
             <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
               <div className="text-2xl font-bold text-white">{overview.total_conditions}</div>
-              <div className="text-sm text-slate-400">Condições monitoradas</div>
+              <div className="text-sm text-slate-400">Condições simuladas</div>
             </div>
             <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
               <div className="text-2xl font-bold text-white">{overview.total_weeks_analyzed}</div>
@@ -63,7 +86,7 @@ export default function Home() {
             <Activity className="w-5 h-5 text-emerald-400" />
             <h3 className="font-semibold text-white">Explorador</h3>
           </div>
-          <p className="text-sm text-slate-400">Série temporal com baseline e bandas de controle.</p>
+          <p className="text-sm text-slate-400">Série temporal com baseline e bandas de referência.</p>
         </Link>
         <Link href="/alerts" className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-emerald-700 transition-colors group">
           <div className="flex items-center gap-2 mb-2">
@@ -71,6 +94,20 @@ export default function Home() {
             <h3 className="font-semibold text-white">Alertas</h3>
           </div>
           <p className="text-sm text-slate-400">Sinais estatísticos por nível e confiabilidade.</p>
+        </Link>
+        <Link href="/simulation" className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-emerald-700 transition-colors group">
+          <div className="flex items-center gap-2 mb-2">
+            <FlaskConical className="w-5 h-5 text-emerald-400" />
+            <h3 className="font-semibold text-white">Simulação de falso alerta</h3>
+          </div>
+          <p className="text-sm text-slate-400">TP/FP/FN pedagógicos vs anomalias plantadas (z e MAD).</p>
+        </Link>
+        <Link href="/comparison" className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-emerald-700 transition-colors group">
+          <div className="flex items-center gap-2 mb-2">
+            <GitCompare className="w-5 h-5 text-emerald-400" />
+            <h3 className="font-semibold text-white">Comparação z vs MAD</h3>
+          </div>
+          <p className="text-sm text-slate-400">Scatter e concordância empírica na mesma série.</p>
         </Link>
         <Link href="/brief" className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-emerald-700 transition-colors group">
           <div className="flex items-center gap-2 mb-2">
@@ -82,16 +119,16 @@ export default function Home() {
         <Link href="/methodology" className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-emerald-700 transition-colors group">
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-semibold text-white">Metodologia</h3>
+            <h3 className="font-semibold text-white">Metodologia visual</h3>
           </div>
-          <p className="text-sm text-slate-400">Documentação detalhada dos métodos e limites.</p>
+          <p className="text-sm text-slate-400">Fórmulas, papéis (oficial vs comparador) e série dual.</p>
         </Link>
         <Link href="/responsible-analytics" className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-emerald-700 transition-colors group">
           <div className="flex items-center gap-2 mb-2">
             <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-semibold text-white">Responsabilidade Analítica</h3>
+            <h3 className="font-semibold text-white">Memo de uso responsável</h3>
           </div>
-          <p className="text-sm text-slate-400">Princípios éticos e antiescopo do projeto.</p>
+          <p className="text-sm text-slate-400">Anti-escopo, linguagem e proveniência — imprimível.</p>
         </Link>
       </div>
     </div>

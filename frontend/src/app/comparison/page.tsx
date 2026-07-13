@@ -12,13 +12,13 @@ const Z_OBS = 1.5
 const Z_ATT = 2.0
 const Z_STRONG = 2.5
 
-function levelFromZ(z: number, sufficient: boolean) {
+function levelFromScore(score: number, sufficient: boolean) {
   if (!sufficient) return "nao_interpretavel"
-  const az = Math.abs(z)
-  if (az >= Z_STRONG) return "sinal_forte"
-  if (az >= Z_ATT) return "atencao"
-  if (az >= Z_OBS) return "observacao"
-  return "normal"
+  // Assinado — espelha backend/pipeline/detector.py (não usa |z|).
+  if (score < Z_OBS) return "normal"
+  if (score < Z_ATT) return "observacao"
+  if (score < Z_STRONG) return "atencao"
+  return "sinal_forte"
 }
 
 export default function ComparisonPage() {
@@ -81,8 +81,8 @@ export default function ComparisonPage() {
     let agree = 0
     for (const p of points) {
       const sufficient = p.alert !== "nao_interpretavel"
-      const zLevel = levelFromZ(p.z, sufficient)
-      const rLevel = levelFromZ(p.robust, sufficient)
+      const zLevel = levelFromScore(p.z, sufficient)
+      const rLevel = levelFromScore(p.robust, sufficient)
       if (zLevel === rLevel) agree += 1
     }
     const corr =
@@ -106,9 +106,9 @@ export default function ComparisonPage() {
 
       <div className="bg-slate-800 rounded-lg p-5 border border-slate-700 space-y-3">
         <p className="text-slate-300 text-sm">
-          Comparação empírica entre <strong className="text-white">rolling z-score</strong> e{" "}
+          Comparação empírica entre <strong className="text-white">z-score sazonal</strong> e{" "}
           <strong className="text-white">MAD robusto</strong> na mesma série sintética.
-          Concordância de nível usa os mesmos limiares absolutos (1.5 / 2.0 / 2.5).
+          Concordância de nível usa os mesmos limiares assinados (1.5 / 2.0 / 2.5), espelhando o backend.
         </p>
         <p className="text-slate-500 text-sm">
           Nenhum método é declarado superior. Ambos são aproximações com limitações distintas.

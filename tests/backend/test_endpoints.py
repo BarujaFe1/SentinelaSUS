@@ -169,6 +169,21 @@ def test_methodology():
     assert r.status_code == 200
     body = r.json()
     assert "methods" in body and "alert_levels" in body
+    assert "rolling" not in body["methods"]["z_score"]["description"].lower()
+    assert "formula" in body["methods"]["z_score"]
+    assert "formula" in body["methods"]["robust_score"]
+
+
+def test_false_alert_evaluation_endpoint():
+    r = client.get("/api/v1/evaluation/false-alerts")
+    assert r.status_code == 200
+    body = r.json()
+    assert "z_score_method" in body and "mad_method" in body
+    assert body["summary"]["planted_anomalies"] > 0
+    assert body["z_score_method"]["tp"] + body["z_score_method"]["fn"] == body["summary"][
+        "planted_anomalies"
+    ]
+    assert "disclaimer" in body
 
 
 def test_municipality_summary():

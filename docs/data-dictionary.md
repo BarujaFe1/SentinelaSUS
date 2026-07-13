@@ -52,6 +52,8 @@
 | anomaly_type | string | "pontual" ou "sustentada" |
 | generation_seed | integer | Seed de geração |
 
+Usado pela API `GET /api/v1/evaluation/false-alerts` para métricas pedagógicas TP/FP/FN (não é validação clínica).
+
 ## data_quality_flags.csv
 
 | Campo | Tipo | Descrição |

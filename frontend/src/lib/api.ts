@@ -28,4 +28,6 @@ export const api = {
   getBrief: (params?: { municipality_id?: string; condition_id?: string }) =>
     fetchJSON<import("./types").ReportBrief>("/api/v1/brief", params as Record<string, string | number | undefined>),
   getMethodology: () => fetchJSON<Record<string, unknown>>("/api/v1/methodology"),
+  getFalseAlertSimulation: () =>
+    fetchJSON<Record<string, unknown>>("/api/v1/evaluation/false-alerts"),
 }

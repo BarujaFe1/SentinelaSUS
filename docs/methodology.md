@@ -32,9 +32,11 @@ Exigência mínima: **3 observações** na agregação. Abaixo disso, o sinal é
 
 A implementação atual agrega **todos os anos** daquela semana epidemiológica (incluindo o ano sob avaliação). Isso introduz dependência leve entre observação e baseline. Para o dataset sintético de demonstração isso é aceitável e está documentado; leave-one-out / janela ±2 semanas permanece no roadmap.
 
-## Rolling z-score
+## Z-score sazonal (classificador oficial)
 
 `z_score = (observed_cases - baseline_mean) / max(baseline_std, 0.1)`
+
+Baseline = **mesma semana epidemiológica** ao longo dos anos (não é janela móvel/rolling). Níveis usam **z assinado**.
 
 Interpretação:
 - z < 1.5: normal

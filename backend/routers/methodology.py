@@ -30,7 +30,13 @@ def get_methodology(store: DataStore = Depends(get_data_store)):
                 ),
             },
             "z_score": {
-                "description": "Rolling z-score: (observado - baseline_média) / baseline_desvio",
+                "description": (
+                    "Z-score sazonal (mesma semana epidemiológica ao longo dos anos): "
+                    "(observado - baseline_média) / max(baseline_desvio, 0.1). "
+                    "Níveis oficiais do produto usam z assinado (não |z|)."
+                ),
+                "formula": "(x - mean_week) / max(std_week, 0.1)",
+                "role": "classificador_oficial",
                 "thresholds": {
                     "normal": f"z < {Z_THRESHOLD_OBSERVACAO}",
                     "observacao": f"{Z_THRESHOLD_OBSERVACAO} ≤ z < {Z_THRESHOLD_ATENCAO}",
@@ -40,9 +46,13 @@ def get_methodology(store: DataStore = Depends(get_data_store)):
             },
             "robust_score": {
                 "description": (
-                    "Alternativa robusta usando mediana e MAD: "
-                    "(observado - baseline_mediana) / (MAD * 1.4826)"
+                    "Score robusto com mediana e MAD (escala aproximada ao desvio-padrão "
+                    "normal via fator 1.4826): "
+                    "(observado - baseline_mediana) / max(MAD * 1.4826, 0.1). "
+                    "Usado para comparação metodológica; não define o nível oficial sozinho."
                 ),
+                "formula": "(x - median_week) / max(MAD_week * 1.4826, 0.1)",
+                "role": "comparador_robusto",
             },
             "reliability_score": {
                 "description": "Score composto de confiabilidade do sinal (0-100)",

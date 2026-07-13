@@ -8,6 +8,7 @@ from backend.routers import (
     brief,
     conditions,
     demo,
+    evaluation,
     methodology,
     municipalities,
     overview,
@@ -17,8 +18,11 @@ from backend.routers import (
 
 app = FastAPI(
     title="SentinelaSUS",
-    description="Painel responsável de vigilância epidemiológica sintética",
-    version="0.1.0",
+    description=(
+        "Painel demonstrativo de vigilância epidemiológica sintética "
+        "(não oficial; sem diagnóstico clínico)."
+    ),
+    version="0.2.0",
     docs_url="/docs",
     redoc_url=None,
 )
@@ -40,8 +44,9 @@ app.include_router(municipalities.router, prefix=API_V1_PREFIX, tags=["municipal
 app.include_router(conditions.router, prefix=API_V1_PREFIX, tags=["conditions"])
 app.include_router(brief.router, prefix=API_V1_PREFIX, tags=["brief"])
 app.include_router(methodology.router, prefix=API_V1_PREFIX, tags=["methodology"])
+app.include_router(evaluation.router, prefix=API_V1_PREFIX, tags=["evaluation"])
 
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "project": "SentinelaSUS", "version": "0.1.0"}
+    return {"status": "ok", "project": "SentinelaSUS", "version": "0.2.0"}

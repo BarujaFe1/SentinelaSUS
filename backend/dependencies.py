@@ -10,6 +10,7 @@ class DataStore:
         self.observations = []
         self.alerts = []
         self.quality_issues = []
+        self.ground_truth = []
         self.metadata = {}
         self._loaded = False
 
@@ -21,6 +22,7 @@ class DataStore:
         self._load_observations()
         self._load_alerts()
         self._load_quality_issues()
+        self._load_ground_truth()
         self._load_metadata()
         self._loaded = True
 
@@ -69,6 +71,14 @@ class DataStore:
             if path.suffix == ".csv"
             else pd.read_parquet(path).to_dict(orient="records")
         )
+
+    def _load_ground_truth(self):
+        import pandas as pd
+        path = SYNTHETIC_DIR / "anomaly_ground_truth.csv"
+        if not path.exists():
+            self.ground_truth = []
+            return
+        self.ground_truth = pd.read_csv(path).to_dict(orient="records")
 
     def _load_metadata(self):
         import json

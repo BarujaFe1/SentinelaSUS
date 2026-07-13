@@ -64,9 +64,9 @@ O SentinelaSUS apresenta uma experiência dark focada em vigilância responsáve
 ## 2. Por que este projeto importa? / Why this project matters
 
 * **Dashboards tradicionais mostram números, não incerteza:** séries epidemiológicas são ruidosas, atrasadas e incompletas. Sem baseline e reliability, o risco de interpretação alarmista cresce.
-* **Estatística precisa ser explicável:** o SentinelaSUS combina rolling z-score e MAD robusto, com thresholds explícitos e score de confiabilidade 0–100.
+* **Estatística precisa ser explicável:** o SentinelaSUS combina z-score sazonal (mesma semana epidemiológica) e MAD robusto, com thresholds explícitos e score de confiabilidade 0–100.
 * **Responsible Analytics em domínio sensível:** linguagem não-alarmista, termos proibidos bloqueados no brief, aviso de dados sintéticos em todas as telas críticas.
-* **Produto real, não notebook:** pipeline reproduzível (seed 42), API tipada, UI consumindo contratos Pydantic e deploy em produção.
+* **Produto demonstrável, não notebook:** pipeline reproduzível (seed 42), API tipada, UI consumindo contratos Pydantic e demo pública na Vercel.
 
 ---
 
@@ -175,7 +175,7 @@ Next.js dashboard + Executive Brief
     <td width="50%">
       <img src="./assets/screenshots/07-method-comparison.png" alt="Comparison" />
       <br />
-      <sub><strong>Method Comparison</strong> — rolling z-score vs MAD robusto.</sub>
+      <sub><strong>Method Comparison</strong> — z-score sazonal vs MAD robusto.</sub>
     </td>
     <td width="50%">
       <img src="./assets/screenshots/09-responsible-analytics.png" alt="Responsible Analytics" />
@@ -247,7 +247,9 @@ Registro de issues com severidade, tipo, métrica afetada e explicação.
 Relatório determinístico com achados, limitações, próximos checks e disclaimer responsável.
 
 ### Method Comparison
-Comparação explícita entre rolling z-score e MAD robusto, sem declarar superioridade absoluta.
+Comparação explícita entre z-score sazonal e MAD robusto, sem declarar superioridade absoluta.
+Simulação pedagógica de falsos alertas contra anomalias plantadas no gerador.
+Memo de uso responsável imprimível com anti-escopo e proveniência.
 
 ---
 
@@ -417,18 +419,19 @@ Detalhes em [docs/methodology.md](docs/methodology.md) e [docs/responsible-analy
 * **Fase 0 — Dataset sintético:** gerador seed 42, 80 municípios, 3 condições, 156 semanas.
 * **Fase 1 — Pipeline gold:** baselines, detector, reliability, quality issues.
 * **Fase 2 — API tipada:** overview, timeseries, alerts, quality, brief, methodology.
-* **Fase 3 — Dashboard:** overview, explorer, alerts, quality, brief, comparison interativa.
+* **Fase 3 — Dashboard:** overview, explorer, alerts, quality, brief, comparison, metodologia visual, simulação FP.
 * **Fase 4 — Deploy:** Vercel frontend + API; Blueprint Render opcional; CI GitHub Actions.
+* **Fase 5 — Evidência pedagógica:** `/simulation` (TP/FP/FN), memo imprimível, claims honestos (sem “rolling”).
 * **Próximas evoluções:** baseline leave-one-out, export PDF do brief, mapas municipais, Playwright smoke.
 
 ---
 
 ## ✅ Status atual
 
-- **Live:** frontend e API em produção (Vercel)
+- **Live:** frontend e API publicados na Vercel (demo pública; features desta branch exigem merge/redeploy)
 - **CI:** ruff + pytest + eslint + tsc + build
 - **Dados:** sintéticos, seed 42, regenerados no build da API
-- **Branch de qualidade:** `chore/portfolio-quality-pass`
+- **Branch atual de evidência:** `feat/portfolio-evidence-pass` (sobre `chore/portfolio-quality-pass`)
 
 ---
 
@@ -438,6 +441,7 @@ Detalhes em [docs/methodology.md](docs/methodology.md) e [docs/responsible-analy
 |---|---|---|
 | DataStore em memória | Simplicidade e latência baixa na demo | Cold start carrega ~37k linhas |
 | Baseline semanal agregada | Fácil de explicar | Inclui ano avaliado (limitação MVP documentada) |
+| Z classifica; MAD compara | Narrativa clara de papéis | Concordância ≠ superioridade |
 | API pública GET-only | Demo aberta | Sem auth/rate-limit avançado |
 | `NEXT_PUBLIC_API_URL` bake-time | Padrão Next | Troca de backend exige rebuild |
 
@@ -447,7 +451,8 @@ Detalhes em [docs/methodology.md](docs/methodology.md) e [docs/responsible-analy
 
 - Produto analítico end-to-end (geração → pipeline → API → UI → deploy)
 - Comunicação de **incerteza** e **confiabilidade**, não só “alerta vermelho”
-- Responsible Analytics (termos proibidos, banners, antiescopo)
+- Responsible Analytics (termos proibidos, memo, banners, antiescopo)
+- Comparação metodológica z vs MAD com simulação de falso alerta
 - Engenharia full-stack com contratos tipados (Pydantic ↔ TypeScript)
 - Disciplina de CI, docs e honestidade metodológica
 
@@ -457,10 +462,10 @@ Detalhes em [docs/methodology.md](docs/methodology.md) e [docs/responsible-analy
 
 1. **Problema:** dashboards epidemiológicos sem baseline/incerteza geram leitura alarmista.  
 2. **Solução:** sinais estatísticos com níveis, reliability e qualidade de dados — 100% sintético.  
-3. **Demo (2 min):** overview → explorer → alert detail → comparison z vs MAD → brief.  
-4. **Decisões:** por que z-score + MAD; por que brief determinístico; por que não prever casos.  
-5. **Limites honestos:** baseline MVP, dados sintéticos, leave-one-out no roadmap.  
-6. **Prova de engenharia:** CI regenera seed 42 e testa contratos; deploy real no ar.
+3. **Demo (3–5 min):** overview → explorer → methodology visual → comparison → simulation FP → memo → brief.  
+4. **Decisões:** por que z classifica e MAD compara; por que brief determinístico; por que não prever casos.  
+5. **Limites honestos:** baseline MVP, dados sintéticos, FP pedagógicos ≠ validação clínica.  
+6. **Prova de engenharia:** CI + seed 42; endpoint `/evaluation/false-alerts`; demo pública.
 
 ---
 
@@ -470,13 +475,18 @@ O SentinelaSUS demonstra competências críticas para **Analytics Engineering, D
 - **Design de produto analítico** em domínio sensível
 - **Séries temporais + detecção explicável**
 - **Governança de linguagem e Responsible Analytics**
-- **Arquitetura FastAPI + Next.js** com contratos tipados e deploy real
+- **Arquitetura FastAPI + Next.js** com contratos tipados e demo pública
 
 ---
 
 ## 📚 Documentação Complementar
 
-- [docs/AUDIT_REPORT.md](docs/AUDIT_REPORT.md) — auditoria desta quality pass
+- [docs/PORTFOLIO_HANDOFF.md](docs/PORTFOLIO_HANDOFF.md) — handoff desta evidence pass
+- [docs/DEMO_WALKTHROUGH.md](docs/DEMO_WALKTHROUGH.md) — roteiro de demo 3–5 min
+- [docs/SCREENSHOT_GUIDE.md](docs/SCREENSHOT_GUIDE.md) — captura de evidências visuais
+- [docs/CHANGELOG.md](docs/CHANGELOG.md) — changelog
+- [docs/RESPONSIBLE_USE_MEMO.md](docs/RESPONSIBLE_USE_MEMO.md) — memo canônico
+- [docs/AUDIT_REPORT.md](docs/AUDIT_REPORT.md) — auditoria quality pass
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arquitetura
 - [docs/TECHNICAL_DECISIONS.md](docs/TECHNICAL_DECISIONS.md) — ADRs curtos
 - [docs/TESTING.md](docs/TESTING.md) — como testar
@@ -486,7 +496,7 @@ O SentinelaSUS demonstra competências críticas para **Analytics Engineering, D
 - [docs/data-dictionary.md](docs/data-dictionary.md) — dicionário de dados
 - [docs/responsible-analytics.md](docs/responsible-analytics.md) — ética e antiescopo
 - [docs/portfolio-case-study.md](docs/portfolio-case-study.md) — case study de portfólio
-- [docs/HANDOFF.md](docs/HANDOFF.md) — handoff da quality pass
+- [docs/HANDOFF.md](docs/HANDOFF.md) — handoff da quality pass anterior
 
 ---
 
